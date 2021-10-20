@@ -1,6 +1,9 @@
 ﻿using System.Globalization;
 using app.Models;
+using app.Requests;
+using app.Responses;
 using app.Services;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -12,12 +15,14 @@ namespace app.Controllers
     {
 
         private readonly ILogger<PersonController> _logger;
-        private IPersonService _personService;
+        private readonly IPersonService _personService;
+        private readonly IMapper _mapper;
 
-        public PersonController(ILogger<PersonController> logger, IPersonService personService)
+        public PersonController(ILogger<PersonController> logger, IPersonService personService, IMapper mapper)
         {
             _logger = logger;
             _personService = personService;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -33,15 +38,27 @@ namespace app.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Person person)
+        public IActionResult Create([FromBody] PersonRequest request)
         {
-            return CreatedAtRoute("GetPerson", new {id = person.Id}, person);
+            var person = _mapper.Map<Person>(request);
+            var personSaved = _personService.Create(person);
+            var response = _mapper.Map<PersonResponse>(personSaved);
+            return CreatedAtRoute("GetPerson", new {id = response.Id}, response);
         }
         
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody]Person person)
+        public IActionResult Update(long id, [FromBody]PersonRequest request)
         {
-           
+            var person = _mapper.Map<Person>(request);
+            var personSaved = _personService.Update(id, person);
+            var response = _mapper.Map<PersonResponse>(personSaved);
+            return Ok(response);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(long id)
+        {
+            _personService.Delete(id);
             return NoContent();
         }
     }

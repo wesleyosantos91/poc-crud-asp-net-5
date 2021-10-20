@@ -4,8 +4,9 @@ using app.Models;
 
 namespace app.Services.Implementations
 {
-    public class PersonServiceImplementaion : IPersonService
+    public class PersonService : IPersonService
     {
+        
         public Person Create(Person person)
         {
             return person;
@@ -26,7 +27,7 @@ namespace app.Services.Implementations
             return MockPerson(id);
         }
 
-        public Person Update(Person person)
+        public Person Update(long id, Person person)
         {
             return person;
         }

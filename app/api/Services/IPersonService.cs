@@ -8,7 +8,7 @@ namespace app.Services
         Person Create(Person person);
         List<Person> FindAll();
         Person FindById(long id);
-        Person Update(Person person);
+        Person Update(long id, Person person);
         void Delete(long id);
     }
 }
