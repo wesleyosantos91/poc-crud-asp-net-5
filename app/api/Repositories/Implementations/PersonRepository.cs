@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using app.Models;
 using app.Models.Contexts;
+using Microsoft.AspNetCore.Http;
 
 namespace app.Repositories.Implementations
 {
@@ -34,7 +36,7 @@ namespace app.Repositories.Implementations
 
         public Person Update(long id, Person person)
         {
-            if (!Exists(id)) return new Person();
+            if (!Exists(id)) throw new BadHttpRequestException($"id not found: {id}");
 
             var result = FindById(id);
 
