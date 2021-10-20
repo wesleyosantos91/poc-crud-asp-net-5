@@ -1,23 +1,17 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using app.Models;
 using app.Models.Contexts;
+using app.Repositories;
+using app.Repositories.Implementations;
 using app.Requests;
 using app.Responses;
 using app.Services;
-using app.Services.Implementations;
 using AutoMapper;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace app
 {
@@ -36,14 +30,20 @@ namespace app
 
             services.AddControllers();
             
-            // inject DB
+            // Inject config DB
             var connection = Configuration.GetConnectionString(nameof(ApplicationDbContext));
             services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(connection));
             services.AddScoped<DbContext, ApplicationDbContext>();
-            // inject dependecy
-            services.AddScoped<IPersonService, PersonService>();
-            // mapper
+            
+            // Inject service and repository
+            services.AddScoped<IPersonRepository, PersonRepository>();
+            services.AddScoped<IPersonService, IPersonService>();
+            
+            // Mapper
             AutoMapperConfig(services);
+            
+            // Version Controller
+            services.AddApiVersioning();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

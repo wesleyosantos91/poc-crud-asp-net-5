@@ -1,46 +1,65 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
 using app.Models;
 using app.Models.Contexts;
 
 namespace app.Repositories.Implementations
 {
-    public class PersonRepository : IRepository<Person>
+    public class PersonRepository : IPersonRepository
     {
-        
-        private readonly ApplicationDbContext _dbContext;
 
-        public PersonRepository(ApplicationDbContext dbContext)
+        private readonly ApplicationDbContext _context;
+
+        public PersonRepository(ApplicationDbContext context)
         {
-            _dbContext = dbContext;
+            _context = context;
         }
 
-        public async Task<Person> Create(Person _object)
+        public Person Create(Person person)
         {
-            var obj = await _dbContext.Persons.AddAsync(_object);  
-            _dbContext.SaveChanges();  
-            return obj.Entity;
+            _context.Add(person);
+            _context.SaveChanges();
+            return person;
         }
 
-        public void Update(Person _object)
+        public List<Person> FindAll()
         {
-            throw new System.NotImplementedException();
+            return _context.Persons.ToList();
         }
 
-        public IEnumerable<Person> GetAll()
+        public Person FindById(long id)
         {
-            throw new System.NotImplementedException();
+            return _context.Persons.SingleOrDefault(p => p.Id.Equals(id));
         }
 
-        public Person GetById(int Id)
+        public Person Update(long id, Person person)
         {
-            throw new System.NotImplementedException();
+            if (!Exists(id)) return new Person();
+
+            var result = FindById(id);
+
+            if (result != null)
+            {
+                _context.Entry(result).CurrentValues.SetValues(person);
+                _context.SaveChanges();
+            }
+            
+            return person;
         }
 
-        public void Delete(Person _object)
+        public void Delete(long id)
         {
-            _dbContext.Remove(_object);  
-            _dbContext.SaveChanges();  
+            var result = FindById(id);
+            if (result !=null)
+            {
+                _context.Persons.Remove(result);
+                _context.SaveChanges();
+            }
+        }
+
+        public bool Exists(long id)
+        {
+            return _context.Persons.Any(p => p.Id.Equals(id));
         }
     }
 }

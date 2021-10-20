@@ -7,28 +7,12 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="10.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.2.7" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Repositories\Implementations\**" />
     <Compile Remove="Repositories\IRepository.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Remove="Repositories\Implementations\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Repositories\Implementations\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Remove="Repositories\Implementations\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Repositories" />
   </ItemGroup>
 
 </Project>
