@@ -5,6 +5,7 @@ using app.Repositories.Implementations;
 using app.Requests;
 using app.Responses;
 using app.Services;
+using app.Services.Implementations;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -37,7 +38,7 @@ namespace app
             
             // Inject service and repository
             services.AddScoped<IPersonRepository, PersonRepository>();
-            services.AddScoped<IPersonService, IPersonService>();
+            services.AddScoped<IPersonService, PersonService>();
             
             // Mapper
             AutoMapperConfig(services);
