@@ -43,6 +43,7 @@ namespace app
         {
             services.AddControllers();
 
+            // Fluent Validation 
             services
                 .AddMvc(options => options.Filters.Add(typeof(ValidatorFilter)))
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
