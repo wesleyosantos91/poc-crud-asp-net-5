@@ -26,7 +26,14 @@ namespace app.Services.Implementations
 
         public Person FindById(long id)
         {
-            return _repository.FindById(id);
+            var person = _repository.FindById(id);
+            if (person == null)
+            {
+                throw new KeyNotFoundException($"Not found regitstry with code {id}");
+            }
+
+            return person;
+
         }
 
         public Person Update(long id, Person person)

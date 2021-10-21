@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using app.Filters;
 using app.Generic;
+using app.Middleware;
 using app.Models;
 using app.Models.Contexts;
 using app.Requests;
@@ -11,6 +12,7 @@ using app.Services.Implementations;
 using AutoMapper;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
@@ -110,6 +112,9 @@ namespace app
             app.UseRewriter(option);
 
             app.UseAuthorization();
+            
+            // global error handler
+            app.UseExceptionHandlerMiddleware();
 
             app.UseEndpoints(endpoints =>
             {
