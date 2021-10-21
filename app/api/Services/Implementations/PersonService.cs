@@ -1,17 +1,15 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using app.Generic;
 using app.Models;
-using app.Models.Contexts;
-using app.Repositories;
 
 namespace app.Services.Implementations
 {
     public class PersonService : IPersonService
     {
 
-        private readonly IPersonRepository _repository;
+        private readonly IRepository<Person> _repository;
 
-        public PersonService(IPersonRepository repository)
+        public PersonService(IRepository<Person> repository)
         {
             _repository = repository;
         }

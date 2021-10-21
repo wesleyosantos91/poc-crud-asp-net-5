@@ -1,17 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using app.Models.Base;
 
 namespace app.Models
 {
     [Table("person", Schema = "dev")]
 
-    public class Person
+    public class Person : BaseEntity
     {
-        [Key]  
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]  
-        [Column("id")]
-        public long Id { get; set; }
-        
         [Required]
         [Column("first_name")]
         public string FirstName { get; set; }

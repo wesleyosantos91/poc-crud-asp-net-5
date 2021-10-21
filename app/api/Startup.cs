@@ -1,7 +1,8 @@
+using System;
+using System.Collections.Generic;
+using app.Generic;
 using app.Models;
 using app.Models.Contexts;
-using app.Repositories;
-using app.Repositories.Implementations;
 using app.Requests;
 using app.Responses;
 using app.Services;
@@ -9,10 +10,13 @@ using app.Services.Implementations;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
+using MySql.Data.MySqlClient;
 using Serilog;
 
 namespace app
@@ -29,11 +33,12 @@ namespace app
             Configuration = configuration;
             Environment = environment;
 
+            Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+
         }
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers();
             
             // Inject config DB
@@ -41,8 +46,14 @@ namespace app
             services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(connection));
             services.AddScoped<DbContext, ApplicationDbContext>();
             
+            // Migrations
+            if (Environment.IsDevelopment())
+            {
+                MigrateDataBase(connection);
+            }
+            
             // Inject service and repository
-            services.AddScoped<IPersonRepository, PersonRepository>();
+            services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IPersonService, PersonService>();
             
             // Mapper
@@ -50,6 +61,21 @@ namespace app
             
             // Version Controller
             services.AddApiVersioning();
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1",
+                    new OpenApiInfo
+                    {
+                        Title = "API Person",
+                        Description = "POC CRUD WITH .NET CORE 5",
+                        Contact = new OpenApiContact
+                        {
+                            Name = "Wesley Oliveira Santos",
+                            Url = new Uri("https://github.com/wesleyosantos91")
+                        }
+                    });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -63,6 +89,17 @@ namespace app
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json","API Person");
+            });
+
+            var option = new RewriteOptions();
+            option.AddRedirect("^$", "swagger");
+            app.UseRewriter(option);
 
             app.UseAuthorization();
 
@@ -81,6 +118,26 @@ namespace app
             });
             var mapper = mapperConfiguration.CreateMapper();
             services.AddSingleton(mapper);
+        }
+        
+        
+        private void MigrateDataBase(string connection)
+        {
+            try
+            {
+                var evolveConnection = new MySqlConnection(connection);
+                var evolve = new Evolve.Evolve(evolveConnection, msg => Log.Information(msg))
+                {
+                    Locations = new List<string> { "db/migrations", "db/dataset" },
+                    IsEraseDisabled = true,
+                };
+                evolve.Migrate();
+            }
+            catch (Exception e)
+            {
+                Log.Error("Database migration failed", e);
+                throw;
+            }
         }
     }
 }
