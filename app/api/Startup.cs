@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using app.Filters;
 using app.Generic;
 using app.Models;
 using app.Models.Contexts;
@@ -8,6 +9,7 @@ using app.Responses;
 using app.Services;
 using app.Services.Implementations;
 using AutoMapper;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Rewrite;
@@ -40,7 +42,11 @@ namespace app
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            
+
+            services
+                .AddMvc(options => options.Filters.Add(typeof(ValidatorFilter)))
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
+
             // Inject config DB
             var connection = Configuration.GetConnectionString(nameof(ApplicationDbContext));
             services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(connection));
@@ -62,6 +68,7 @@ namespace app
             // Version Controller
             services.AddApiVersioning();
 
+            // Open API
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1",
@@ -85,7 +92,7 @@ namespace app
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            
             app.UseHttpsRedirection();
 
             app.UseRouting();
